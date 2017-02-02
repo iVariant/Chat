@@ -32,10 +32,53 @@ char* ChatServer::getIP()
 	}
 }
 
+int ChatServer::Initialization()
+{
+	// Max version WinSock
+	wVersionRequested = MAKEWORD(2, 2);
+
+	//Initialization WinSock API
+	if (WSAStartup(wVersionRequested, &wsaData)) 
+	{ 
+		std::cout << "Error Initialization!\n";
+		return 0; 
+	}
+
+	s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+	local.sin_family = AF_INET;
+	local.sin_port = htons(1280);
+	local.sin_addr.s_addr = htonl(INADDR_ANY); //physical ip address
+
+	if (bind(s, (struct sockaddr*)&local, sizeof(local)) == -1) //ip + port
+	{
+		std::cout << "Server: Binding error!";
+		closesocket(s);
+		WSACleanup();
+		return 0;
+	}
+
+	if (listen(s, 100) == -1)
+	{
+		std::cout << "Server: Error listening!";
+		closesocket(s);
+		WSACleanup();
+		return 0;
+	}
+
+	return 1;
+}
+
+int ChatServer::close()
+{
+	closesocket(s);
+	WSACleanup();
+	return 1;
+}
+
 ChatServer::ChatServer()
 {
 }
-
 
 ChatServer::~ChatServer()
 {

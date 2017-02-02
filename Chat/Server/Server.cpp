@@ -14,12 +14,21 @@ int main()
 	MultiByteToWideChar(0, 0, serv->getIP(), 32, wcsServerIP, 32);
 	wcscat_s(wcsConsoleTitle, wcsServerIP);
 	SetConsoleTitle(wcsConsoleTitle);
+	std::wcout << "IP-address: " << wcsServerIP << std::endl;
 
+
+	if (serv->Initialization())
+	{
+		std::cout << "Server: Initialization OK \n";
+	}
+
+
+
+	if (serv->close())
+	{
+		std::cout << "Server: Close \n";
+	}
 	
-
-
-
-
 
 	system("pause");
 
