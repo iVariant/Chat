@@ -44,24 +44,24 @@ int ChatServer::Initialization()
 		return 0; 
 	}
 
-	s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	socketLocal = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	local.sin_family = AF_INET;
 	local.sin_port = htons(1280);
 	local.sin_addr.s_addr = htonl(INADDR_ANY); //physical ip address
 
-	if (bind(s, (struct sockaddr*)&local, sizeof(local)) == -1) //ip + port
+	if (bind(socketLocal, (struct sockaddr*)&local, sizeof(local)) == -1) //ip + port
 	{
 		std::cout << "Server: Binding error!";
-		closesocket(s);
+		closesocket(socketLocal);
 		WSACleanup();
 		return 0;
 	}
 
-	if (listen(s, 100) == -1)
+	if (listen(socketLocal, 100) == -1)
 	{
 		std::cout << "Server: Error listening!";
-		closesocket(s);
+		closesocket(socketLocal);
 		WSACleanup();
 		return 0;
 	}
@@ -71,9 +71,33 @@ int ChatServer::Initialization()
 
 int ChatServer::close()
 {
-	closesocket(s);
+	closesocket(socketLocal);
 	WSACleanup();
 	return 1;
+}
+
+int ChatServer::run()
+{
+	while (true)
+	{
+		sockaddr_in remoteAddress;
+		int sizeRemoteAddress = sizeof(remoteAddress);
+		ZeroMemory(&remoteAddress, sizeof(remoteAddress));	
+		SOCKET socketRemoteAddress = accept(socketLocal, (struct sockaddr*)&remoteAddress, &sizeRemoteAddress); // When a client request is executed opening a connection
+
+		char buffer[10000];
+
+		std::cout << "Server: Run \n";
+		while (recv(socketRemoteAddress, buffer, sizeof(buffer), 0) > 0)
+		{
+
+			//send(s2, buffer, sizeof(buffer), 0);
+		}
+
+		closesocket(socketRemoteAddress);
+		return 1;
+	}
+	
 }
 
 ChatServer::ChatServer()

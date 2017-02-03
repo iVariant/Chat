@@ -17,16 +17,36 @@ int main()
 	std::wcout << "IP-address: " << wcsServerIP << std::endl;
 
 
+	std::cout << "Server: Initialization... \n";
 	if (serv->Initialization())
 	{
-		std::cout << "Server: Initialization OK \n";
+		std::cout << "Server: OK \n";
+	}
+	else
+	{
+		std::cout << "Server: exit \n";
+		system("pause");
+		delete serv;
+		return 0;
 	}
 
 
 
+
+
+
+
+	std::cout << "Server: Close... \n";
 	if (serv->close())
 	{
-		std::cout << "Server: Close \n";
+		std::cout << "Server: OK \n";
+	}
+	else
+	{
+		std::cout << "Server: exit \n";
+		system("pause");
+		delete serv;
+		return 0;
 	}
 	
 
