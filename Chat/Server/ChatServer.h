@@ -1,18 +1,17 @@
 #pragma once
+
 class ChatServer
 {
 private:
-	char ip[32];
+	char ip[15];
 
-	SOCKET socketLocal;
+	SOCKET server;
 
-	WORD wVersionRequested;
-	WSADATA wsaData;
-
-	struct sockaddr_in local;
-
+	static DWORD WINAPI sendMessageToClient(LPVOID param);
+	int countClient;
 
 public:
+
 	ChatServer();
 	~ChatServer();
 
@@ -20,5 +19,6 @@ public:
 	int Initialization();
 	int close();
 	int run();
+
 };
 

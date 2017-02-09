@@ -35,69 +35,103 @@ char* ChatServer::getIP()
 int ChatServer::Initialization()
 {
 	// Max version WinSock
-	wVersionRequested = MAKEWORD(2, 2);
+	WORD wVersionRequested = MAKEWORD(2, 2);
+	WSADATA wsaData;
+	struct sockaddr_in local;
 
 	//Initialization WinSock API
 	if (WSAStartup(wVersionRequested, &wsaData)) 
 	{ 
-		std::cout << "Error Initialization!\n";
+		std::cout << "Server> Error Initialization!\n";
 		return 0; 
 	}
 
-	socketLocal = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (INVALID_SOCKET == (server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)))
+	{
+		std::cout << "Server> Binding error!";
+		closesocket(server);
+		WSACleanup();
+		return 0;
+	}
 
 	local.sin_family = AF_INET;
 	local.sin_port = htons(1280);
 	local.sin_addr.s_addr = htonl(INADDR_ANY); //physical ip address
 
-	if (bind(socketLocal, (struct sockaddr*)&local, sizeof(local)) == -1) //ip + port
+	if (bind(server, (struct sockaddr*)&local, sizeof(local)) == -1) //ip + port
 	{
-		std::cout << "Server: Binding error!";
-		closesocket(socketLocal);
+		std::cout << "Server> Binding error!";
+		closesocket(server);
 		WSACleanup();
 		return 0;
 	}
 
-	if (listen(socketLocal, 100) == -1)
+	if (listen(server, 100) == -1)
 	{
-		std::cout << "Server: Error listening!";
-		closesocket(socketLocal);
+		std::cout << "Server> Error listening!";
+		closesocket(server);
 		WSACleanup();
 		return 0;
 	}
 
+	std::cout << "Server> Start! \n";
 	return 1;
 }
 
 int ChatServer::close()
 {
-	closesocket(socketLocal);
+	closesocket(server);
 	WSACleanup();
 	return 1;
 }
 
+
+static SOCKET clientConnections[100]; //peredelat v vector
+
 int ChatServer::run()
 {
+	SOCKET Connect;
+
+	countClient = 0;
+	memset(clientConnections, 0, sizeof clientConnections); // clear array
+
+
+	std::cout << "Server> Run \n";
+
 	while (true)
 	{
-		sockaddr_in remoteAddress;
-		int sizeRemoteAddress = sizeof(remoteAddress);
-		ZeroMemory(&remoteAddress, sizeof(remoteAddress));	
-		SOCKET socketRemoteAddress = accept(socketLocal, (struct sockaddr*)&remoteAddress, &sizeRemoteAddress); // When a client request is executed opening a connection
-
-		char buffer[10000];
-
-		std::cout << "Server: Run \n";
-		while (recv(socketRemoteAddress, buffer, sizeof(buffer), 0) > 0)
+		if (Connect = accept(server, NULL, NULL))
 		{
-
-			//send(s2, buffer, sizeof(buffer), 0);
+			
+			clientConnections[countClient] = Connect;
+			send(clientConnections[countClient], "Connecting...", strlen("Connecting..."), NULL);
+			countClient++;
+			std::cout << "Server> Client " << countClient << " connected \n";
+			HANDLE thread = CreateThread(NULL, 0, sendMessageToClient, (LPVOID)countClient, 0, NULL);
 		}
-
-		closesocket(socketRemoteAddress);
-		return 1;
+		Sleep(99);
 	}
-	
+
+	return 1;
+}
+
+
+DWORD ChatServer::sendMessageToClient(LPVOID param)
+{
+	char buffer[1024];
+	while(true)
+	{
+		memset(buffer, 0, sizeof(buffer));
+		if (recv(clientConnections[(int)param-1], buffer, 1024, NULL)) // here
+		{
+			std::cout << buffer << std::endl;
+			for (int i = 0; i <= (int)param; i++)
+			{
+				send(clientConnections[i], buffer, strlen(buffer), NULL);
+			}
+		}
+	}
+	return 0;
 }
 
 ChatServer::ChatServer()
@@ -106,6 +140,8 @@ ChatServer::ChatServer()
 
 ChatServer::~ChatServer()
 {
+	closesocket(server);
+	WSACleanup();
 }
 
 
