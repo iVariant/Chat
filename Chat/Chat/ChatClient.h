@@ -2,11 +2,13 @@
 
 class ChatClient
 {
+
 private:
-	char serverIP[15];
 
-	SOCKET socketLocal;
+	SOCKET client;
 
+
+	static DWORD WINAPI sendMessageToServer(LPVOID param);
 
 public:
 	ChatClient();
@@ -14,6 +16,6 @@ public:
 
 	int connectChatServer(char ip[15], char name[32]);
 	int disconnectChatServer();
-
+	
 };
 

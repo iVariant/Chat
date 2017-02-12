@@ -80,6 +80,7 @@ int ChatServer::Initialization()
 
 int ChatServer::close()
 {
+	std::cout << "Server> Close!";
 	closesocket(server);
 	WSACleanup();
 	return 1;
@@ -104,13 +105,14 @@ int ChatServer::run()
 		{
 			
 			clientConnections[countClient] = Connect;
-			send(clientConnections[countClient], "Connecting...", strlen("Connecting..."), NULL);
+			send(clientConnections[countClient], "Connecting...\n", strlen("Connecting...\n"), NULL);
 			countClient++;
 			std::cout << "Server> Client " << countClient << " connected \n";
 			HANDLE thread = CreateThread(NULL, 0, sendMessageToClient, (LPVOID)countClient, 0, NULL);
 		}
 		Sleep(99);
 	}
+
 
 	return 1;
 }
@@ -140,8 +142,7 @@ ChatServer::ChatServer()
 
 ChatServer::~ChatServer()
 {
-	closesocket(server);
-	WSACleanup();
+	close();
 }
 
 

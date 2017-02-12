@@ -24,6 +24,9 @@ int main()
 	
 	} while (!client->connectChatServer(ip,name));
 
+	delete client;
+
+	system("pause");
 
     return 0;
 }
