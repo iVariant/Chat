@@ -87,11 +87,11 @@ int ChatServer::close()
 }
 
 
-static SOCKET clientConnections[100]; //peredelat v vector
+static SOCKET clientConnections[100];
 
 int ChatServer::run()
 {
-	SOCKET Connect;
+	SOCKET connect;
 
 	countClient = 0;
 	memset(clientConnections, 0, sizeof clientConnections); // clear array
@@ -101,10 +101,10 @@ int ChatServer::run()
 
 	while (true)
 	{
-		if (Connect = accept(server, NULL, NULL))
+		if (connect = accept(server, NULL, NULL))
 		{
 			
-			clientConnections[countClient] = Connect;
+			clientConnections[countClient] = connect;
 			send(clientConnections[countClient], "Connecting...\n", strlen("Connecting...\n"), NULL);
 			countClient++;
 			std::cout << "Server> Client " << countClient << " connected \n";
@@ -123,7 +123,7 @@ DWORD ChatServer::sendMessageToClient(LPVOID param)
 	char buffer[1024];
 	while(true)
 	{
-		memset(buffer, 0, sizeof(buffer));
+		memset(buffer, '\0', sizeof(buffer));
 		if (recv(clientConnections[(int)param-1], buffer, 1024, NULL)) // here
 		{
 			std::cout << buffer << std::endl;
